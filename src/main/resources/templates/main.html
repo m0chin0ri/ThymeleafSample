@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Thymeleaf Sample</title>
+	</head>
+	<div id="one" th:insert="common :: header"></div>
+	<body>
+		<p>1:直接文字を埋め込む</p>
+		<h1 th:text="'hello world'">表示する部分</h1>
+		<hr>
+		
+		<p>2:インライン処理</p>
+<!--	名前で値を持ってくる(↓テキストの中で変数を使うとき)-->
+		<h1>こんにちは！[[${name}]]さん</h1>
+		<hr>
+		
+		<p>3:値結合</p>
+<!--	シングルクォートで囲むことで文字列の指定をしている-->
+		<h1 th:text="'明日は、' + '晴れ' + 'です。'">表示する部分</h1>
+		<hr>
+		
+		<p>4:値結合(リテラル置換)</p>
+<!--	パイプ記号を利用することで可読性をアップできる「3:結合地」より簡単に-->
+		<h1 th:text="|こんにちは！${name}さん|">表示する部分</h1>
+		<hr>
+		
+		<p>5:ローカル変数</p>
+<!--	テンプレート内(この場合定義したdivタグ内)で一時的に使える変数-->
+		<div th:with="a=1, b=2">
+			<span th:text="|${a} + ${b} = ${a + b}|"></span>
+		</div>
+		<hr>
+	
+		<p>6:比較と等価</p>
+		<div>
+			<span th:text="1 > 10"></span><br>
+			<span th:text="1 < 10"></span><br>
+			<span th:text="1 >= 10"></span><br>
+			<span th:text="1 <= 10"></span><br>
+			<span th:text="1 == 10"></span><br>
+			<span th:text="1 != 10"></span><br>
+			<span th:text="太郎 == 太郎"></span><br>
+			<span th:text="太郎 != 太郎"></span><br>
+		</div>
+		<hr>
+		
+		<p>7:条件演算子</p>
+<!--	? は条件が真の場合の値を示す。-->
+<!--	: は条件が偽の場合の値を示す。-->
+		<p th:text="${name} == '太郎'? '太郎さんです！': '太郎さんではありません。'"></p>
+		<hr>
+		
+		<p>8：条件分岐(true)</p>
+<!--	条件がtrueの場合に表示する-->
+		<div th:if="${name} == '太郎'">
+			<p>太郎さんです！</p>
+		</div>
+		<hr>
+		
+	
+		<p>9：条件分岐(false)</p>
+<!--	条件がfalseの場合に表示する-->
+		<div th:unless="${name} == '花子'">
+			<p>花子さんではありません。</p>
+		</div>
+		<hr>
+		
+		<p>10：switch</p>
+<!--	特定の変数の値に基づいて異なる処理を選択する-->
+<!--	th:caseは、th:switchで指定された変数の値がth:case=の値に一致したときに適用される-->
+		<div th:switch="${name}">
+			<p th:case="太郎" th:text="|${name}です！|"></p>
+			<p th:case="ジロウ" th:text="|${name}です！|"></p>
+			<p th:case="花子" th:text="|${name}です！|"></p>
+			<p th:case="*">名簿にありません</p>
+		</div>
+		<hr>
+		
+		<p>11：参照(データをまとめたオブジェクト)</p>
+<!--	参照の流れ-->
+<!--	コントローラーでオブジェクトを作成: コントローラーがMemberオブジェクトを作成し、モデルに追加します。-->
+<!--	モデルにデータを追加: model.addAttribute("mb", mb)で、mbオブジェクトがテンプレートに渡されます。-->
+<!--	テンプレートでデータを参照: main.htmlテンプレート内で、th:textを使って${mb.id}や${mb.name}としてデータを表示します。-->
+		<p th:text="${mb.id}">ID</p>
+<!--	mbオブジェクトのidフィールドを取得して表示-->
+		<p th:text="${mb.name}">名前</p>
+<!--	mbオブジェクトのnameフィールドを取得して表示-->
+		<p th:text="${mb['id']}">ID:[]でアクセス</p>
+<!--	配列形式でidフィールドを参照し、同じように表示-->
+		<p th:text="${mb['name']}">名前:[]でアクセス</p>
+<!--	nameフィールドを配列形式で参照して表示-->
+		<hr>
+		
+		<p>12:参照(th:object)</p>
+		<div th:block th:object="${mb}">
+<!--	th:object="${mb}"を使ってmbオブジェクトを指定-->
+<!--	オブジェクトのプロパティに*{}の形でアクセス可能に-->
+			<p th:text="*{id}">ID</p>
+<!--		mb.idを*{id}の形で簡略化して使用-->
+			<p th:text="*{name}">名前</p>
+			<p th:text="*{['id']}">ID:[]でアクセス</p>
+			<p th:text="*{['name']}">名前:[]でアクセス</p>
+		</div>
+		<hr>
+		
+		<p>13:参照(List)</p>
+<!--	リストの各要素をインデックスを使って参照（配列を利用）-->
+		<span th:text="${list[0]}">方角</span>
+		<span th:text="${list[1]}">方角</span>
+		<span th:text="${list[2]}">方角</span>
+		<span th:text="${list[3]}">方角</span>
+		<hr>
+		
+		<p>14:参照(Map)</p>
+<!--	Mapデータ構造を参照。-->
+<!--	Mapという名前のオブジェクトに保存された複数のキーと、そのキーに対応する値にアクセス-->
+<!--	[]は特定の場面、つまり、配列やMapの要素を参照する場合に使う-->
+		<span th:text="${map.tanaka.name}">名前1:ドット記法でアクセス</span><br>
+		<span th:text="${map.suzuki.name}">名前2:ドット記法でアクセス</span><br>
+		<span th:text="${map['tanaka']['name']}">名前1 :配列形式でアクセス</span><br>
+		<span th:text="${map['suzuki']['name']}">名前2 :配列形式でアクセス</span><br>
+		<hr>
+
+		<p>15：繰り返し</p>
+<!--	model.addAttribute("members", members)で渡したデータが、テンプレート内で${members}として参照-->
+<!--	テンプレートでは、${}で囲まれた部分がモデルに渡されたデータに置き換わる-->
+<!--	【構文】th:each="変数名 : ${リスト}"-->
+		<div th:each="member : ${members}">
+			<p>[[${member.id}]] : [[${member.name}]]</p>
+		</div>
+		<hr>
+
+		<p>16：繰り返しのステータス</p>
+<!--	リストの要素とステータス変数をカンマで区切って定義-->
+<!--	【構文】th:each="変数名, ステータス変数名 : ${リスト}"-->
+		<div th:each="member, s : ${members}" th:object="${member}">
+<!--		 プロパティ	説明-->
+<!--			index	0から始まる現在のインデックス。最初の要素は0。-->
+<!--			count	1から始まる現在のカウント。最初の要素は1。-->
+<!--			size	ループ対象のリストの総要素数。-->
+<!--			current	現在の要素（ループ中のオブジェクト）。-->
+<!--			even	現在の要素が偶数番目ならtrue。-->
+<!--			odd		現在の要素が奇数番目ならtrue。-->
+<!--			first	最初の要素ならtrue。-->
+<!--			last	最後の要素ならtrue。-->
+			<p>
+				index -> [[${s.index}]], 
+				count -> [[${s.count}]],
+				size -> [[${s.size}]], 
+				current -> [[${s.current}]],
+				even -> [[${s.even}]], 
+				odd -> [[${s.odd}]],
+				first -> [[${s.first}]], 
+				last -> [[${s.last}]],
+				[[*{id}]] : [[*{name}]]
+			</p>
+		</div>
+
+		<p>17:ユーティリティオブジェクト(数値)</p>
+		<div th:with="x=1000000, y=123456.789">
+<!--		数値がカンマ区切りのフォーマットで表示-->
+			整数のフォーマット:<span th:text="${#numbers.formatInteger(x, 3, 'COMMA')}"></span><br>
+<!--		3桁ごとにカンマ区切りし(COMMA)、さらに小数点以下2桁までを表示する(POINT)設定-->
+			浮動小数点のフォーマット:<span th:text="${#numbers.formatDecimal(y, 3, 'COMMA', 2, 'POINT')}"></span>
+		</div>
+
+		<p>17:ユーティリティオブジェクト(日時)</p>
+<!--		createNow()で現在の日時を変数todayに設定-->
+		<div th:with="today=${#dates.createNow()}">
+<!--		今日の日付をformatでしていして表示-->
+			yyyy/mm/dd形式:<span th:text="${#dates.format(today, 'yyyy/MM/dd')}"></span><br>
+			yyyy年mm月dd日形式:<span th:text="${#dates.format(today, 'yyyy年MM月dd日')}"></span><br>
+<!--		年を取得-->
+			yyyy年:<span th:text="${#dates.year(today)}"></span><br>
+<!--		月を取得-->
+			MM月:<span th:text="${#dates.month(today)}"></span><br>
+<!--		日を取得-->
+			dd日:<span th:text="${#dates.day(today)}"></span><br>
+<!--		曜日を取得-->
+			曜日:<span th:text="${#dates.dayOfWeek(today)}"></span><br>
+		</div>
+
+		<p>17:ユーティリティオブジェクト(文字列)</p>
+<!--	str1というローカル変数を定義。str1には、文字列"abcdef"が代入-->
+		<div th:with="str1='abcdef'">
+			大文字変換:<span th:text="${#strings.toUpperCase(str1)}"></span><br>
+			空文字変換:<span th:text="${#strings.isEmpty(str1)}"></span><br>
+			長さ:<span th:text="${#strings.length(str1)}"></span><br>
+		</div>
+		<hr>
+		
+		<h1>Fragmentをこの下に埋め込む</h1>
+<!--	common.html内にあるheaderフラグメントを指定-->
+<!--	th:insertを使うと、common.html内のheaderフラグメントが<div id="one">の中に挿入される-->
+		<div id="one" th:insert="common :: header"></div>
+<!--	common.htmlというファイル内にあるfooterというフラグメントを指定-->
+<!--	th:replaceを使うと、<div id="two">タグごとcommon.htmlのfooterフラグメントに置き換えられ-->
+		<div id="two" th:replace="common :: footer"></div>
+		
+<!--		th:replaceを使うべき時-->
+<!--		→完全なレイアウトや構造を差し替える必要がある時-->
+<!--		→重複を避けたい時-->
+<!--		th:insert（フラグメントの追加）が適している時-->
+<!--		→部分的なコンテンツ追加が必要な場合-->
+<!--		→基本の構造を維持しながら部分的なカスタマイズを行いたい時-->
+		
+	</body>
+
+</html>
